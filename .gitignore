@@ -1,6 +1,7 @@
 # Material de aula e configuração local (não versionar)
 docs/Resumo_Aulas_Tech_Challenge.md
 .claude/
+.superpowers/
 *.pdf
 *.PDF
 

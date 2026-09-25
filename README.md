@@ -35,8 +35,6 @@ Pós-graduação em Machine Learning Engineering — FIAP + Alura (PosTech)
 ## 🎬 Vídeo STAR
 
 > **Link do vídeo:** `[ADICIONAR LINK DO VÍDEO AQUI]`
->
-> Roteiro (5 min, método STAR): [`docs/roteiro_video_star.md`](docs/roteiro_video_star.md)
 
 ---
 

@@ -114,7 +114,8 @@ versionado em `data/raw/laudos_sinteticos.csv`.
   `zipmap=False` (saída de probabilidades como tensor) e `tokenexp` equivalente ao `token_pattern`
   do sklearn.
 - **Paridade (bloqueante):** no conjunto de teste, a concordância de classe entre sklearn e ONNX deve
-  ser ≥ 99% e a diferença absoluta máxima de probabilidade ≤ 1e-3. Se falhar, a exportação lança
+  ser ≥ 99% e a diferença absoluta máxima de probabilidade ≤ 1e-2 (o ONNX usa float32 nas árvores;
+  no spike a diferença medida foi de ~5e-3, com 100% de concordância). Se falhar, a exportação lança
   `ParidadeOnnxError` e a versão não é promovida.
 - **Benchmark** (`triagem.benchmark`), com a metodologia das aulas de Latência e Monitoração:
   percentis P50/P95/P99 (não a média), warmup de 50 chamadas, 1.000 chamadas com batch 1, textos
@@ -205,7 +206,7 @@ automático, de propósito, para manter o escopo pequeno.
   código** (`monitoring/grafana/provisioning/...` e `monitoring/grafana/dashboards/triagem.json`).
   Login anônimo com papel Viewer habilitado para a demo; admin/admin continua disponível.
 
-**Dashboard "Triagem de Laudos — API"** (6 painéis, contra o mínimo de 3):
+**Dashboard "Triagem de Laudos — API"** (7 painéis, contra o mínimo de 3; o item 6 vira 2 stats):
 
 1. Requisições por segundo por status: `sum by (status) (rate(triagem_http_requests_total{rota="/predict"}[1m]))`.
 2. Latência HTTP P50/P95/P99: `histogram_quantile(0.95, sum by (le) (rate(triagem_http_request_duration_seconds_bucket{rota="/predict"}[1m])))`, e o mesmo para 0.5 e 0.99.
@@ -239,7 +240,7 @@ evolução.
 
 ```
 .github/workflows/ci.yml
-airflow/Dockerfile
+airflow/Dockerfile, airflow/check_dag.py  # imagem do Airflow e validação da DAG no CI
 dags/triagem_retreino.py
 data/raw/laudos_sinteticos.csv          # versionado; data/processed/ fica no .gitignore
 docs/
@@ -313,7 +314,7 @@ também ficam no `.gitignore`: o primeiro é configuração local, o segundo é 
 | Modelagem e Otimização (20%) | `triagem.modelo`, `triagem.onnx_export`, `reports/latencia.md` com sklearn vs. ONNX |
 | CI/CD (15%) | `.github/workflows/ci.yml` com 4 jobs verdes no GitHub |
 | Orquestração (15%) | `dags/triagem_retreino.py` com 5 tasks e execução local comprovada |
-| Monitoramento (20%) | `docker-compose.yml`, dashboard provisionado com 6 painéis e print |
+| Monitoramento (20%) | `docker-compose.yml`, dashboard provisionado com 7 painéis e print |
 | Documentação (15%) | README (arquitetura em nuvem, execução passo a passo, resultados) e `docs/arquitetura.md` |
 | Vídeo STAR (15%) | `docs/roteiro_video_star.md`; a gravação fica com o usuário |
 

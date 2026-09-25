@@ -1,0 +1,23 @@
+name: triagem-airflow
+
+services:
+  airflow:
+    build:
+      context: .
+      dockerfile: airflow/Dockerfile
+    image: triagem-airflow:local
+    command: standalone
+    user: "${AIRFLOW_UID:-50000}:0"
+    environment:
+      AIRFLOW__CORE__LOAD_EXAMPLES: "false"
+      # Somente para desenvolvimento local: dispensa login na UI.
+      AIRFLOW__CORE__SIMPLE_AUTH_MANAGER_ALL_ADMINS: "true"
+      TRIAGEM_BASE_DIR: /opt/airflow
+    volumes:
+      - ./dags:/opt/airflow/dags
+      - ./src:/opt/airflow/src
+      - ./data:/opt/airflow/data
+      - ./models:/opt/airflow/models
+      - ./airflow/logs:/opt/airflow/logs
+    ports:
+      - "${AIRFLOW_PORT:-8080}:8080"

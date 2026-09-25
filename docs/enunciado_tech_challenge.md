@@ -1,4 +1,4 @@
-# Tech Challenge — Enunciado Oficial
+# Cloud e Mlops Enunciado Oficial
 
 ## Tema Central
 Deploy de Modelo em Produção com Pipeline CI/CD, Monitoramento e Otimização de Latência.
@@ -14,12 +14,6 @@ Um hospital de referência precisa de um sistema de triagem automática de exame
 - Dockerfile funcional para o serviço de inferência.
 - Stack de monitoramento local: API + Prometheus + Grafana via Docker Compose.
 - Histórico de commits semântico e organizado.
-
-**Vídeo (5 minutos — método STAR)**
-- Situation: Problema clínico e importância da triagem rápida.
-- Task: Requisitos técnicos da fase (latência, CI/CD, monitoramento).
-- Action: Arquitetura escolhida, como o modelo foi otimizado e como a monitoração foi configurada.
-- Result: Demonstração do pipeline funcionando, latência alcançada e lições aprendidas.
 
 ## Bibliotecas Requeridas
 - Scikit-Learn ou framework de preferência — modelo base de classificação de texto (ex.: TF-IDF + Random Forest ou modelo leve similar).
@@ -58,23 +52,3 @@ Um hospital de referência precisa de um sistema de triagem automática de exame
 - Comparar latência do modelo original vs. otimizado.
 - Gravar o vídeo STAR demonstrando o projeto.
 - **Entregável:** Modelo otimizado, resultados comparativos de latência e link do vídeo.
-
-## Critérios de Avaliação
-
-| Critério | Peso | Descrição |
-|---|---|---|
-| Modelagem e Otimização | 20% | Modelo funcional de NLP, conversão/otimização (ex.: ONNX) bem-sucedida e melhoria de latência demonstrada. |
-| CI/CD (GitHub Actions) | 15% | Workflow configurado e rodando testes básicos. |
-| Orquestração (Airflow) | 15% | DAG funcional realizando as etapas de ingestão e treino. |
-| Monitoramento | 20% | Compose funcional (API + Prometheus + Grafana) com dashboard exibindo as métricas propostas. |
-| Documentação (README) | 15% | Explicação da arquitetura em nuvem escolhida e instruções claras de execução. |
-| Vídeo STAR | 15% | Clareza na demonstração técnica e explicação do impacto (≤ 5 min). |
-
-## Dataset Sugerido
-Datasets públicos simples de classificação de textos médicos ou triagem. Exemplos: Medical Abstracts TC Corpus (Kaggle), recortes do MIMIC-III (open access) ou qualquer dataset tabular contendo uma coluna de texto (sintoma/laudo) e uma coluna de target (classificação/urgência) com pelo menos 2.000 amostras.
-
-## Passo a Passo Resumido
-- [Etapa 1] Escolher arquitetura teórica + API FastAPI em Docker + Medir latência base.
-- [Etapa 2] Configurar GitHub Actions (lint/test) + Criar DAG Airflow simples de treino.
-- [Etapa 3] Configurar Docker Compose com Prometheus e Grafana + Gerar requisições para ver o gráfico.
-- [Etapa 4] Aplicar otimização (ex.: converter modelo para ONNX) + Documentar resultados + Gravar o Vídeo.

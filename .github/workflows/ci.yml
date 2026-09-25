@@ -1,0 +1,75 @@
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: ci-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  lint:
+    name: Lint (ruff)
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v7
+      - uses: astral-sh/setup-uv@v7
+        with:
+          enable-cache: true
+      - run: uv sync --locked --all-extras
+      - run: uv run ruff check .
+      - run: uv run ruff format --check .
+
+  test:
+    name: Testes (pytest)
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v7
+      - uses: astral-sh/setup-uv@v7
+        with:
+          enable-cache: true
+      - run: uv sync --locked --all-extras
+      - run: uv run pytest --cov=triagem --cov-report=term-missing --cov-fail-under=80
+
+  build:
+    name: Build da imagem + smoke test
+    needs: [lint, test]
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v7
+      - uses: docker/setup-buildx-action@v4
+      - uses: docker/build-push-action@v7
+        with:
+          context: .
+          load: true
+          tags: triagem-api:ci
+          cache-from: type=gha
+          cache-to: type=gha,mode=max
+      - run: bash scripts/smoke_test.sh triagem-api:ci 8000
+
+  dag-check:
+    name: Validação da DAG (Airflow)
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v7
+      - uses: docker/setup-buildx-action@v4
+      - uses: docker/build-push-action@v7
+        with:
+          context: .
+          file: airflow/Dockerfile
+          load: true
+          tags: triagem-airflow:ci
+          cache-from: type=gha,scope=airflow
+          cache-to: type=gha,mode=max,scope=airflow
+      - run: >
+          docker run --rm
+          -v "$PWD/dags:/opt/airflow/dags:ro"
+          -v "$PWD/airflow/check_dag.py:/opt/airflow/check_dag.py:ro"
+          --entrypoint python triagem-airflow:ci /opt/airflow/check_dag.py

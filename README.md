@@ -174,7 +174,7 @@ triagem-laudos-mlops/
 ├── reports/                  # latencia.{md,json} · candidatos.json (dados dos gráficos)
 ├── data/raw/                 # dataset sintético versionado
 ├── tests/                    # 74 testes (pytest)
-├── docs/                     # arquitetura · roteiro do vídeo · prints · spec e plano
+├── docs/                     # arquitetura · prints · spec e plano
 ├── Dockerfile                # multi-stage: treino → deps → runtime (675 MB)
 ├── docker-compose.yml        # api + prometheus + grafana (+ carga opcional)
 └── docker-compose.airflow.yml

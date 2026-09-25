@@ -1,0 +1,22 @@
+# Material de aula e configuração local (não versionar)
+docs/Resumo_Aulas_Tech_Challenge.md
+.claude/
+*.pdf
+*.PDF
+
+# Dados e artefatos gerados
+data/processed/
+models/
+airflow/logs/
+*.db
+
+# Python / ferramentas
+__pycache__/
+*.pyc
+.pytest_cache/
+.ruff_cache/
+.coverage
+coverage.xml
+htmlcov/
+.venv/
+.env

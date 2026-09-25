@@ -13,3 +13,10 @@ def split_pequeno():
 def pipeline_treinado(split_pequeno):
     treino, _ = split_pequeno
     return treinar(treino["texto"], treino["classe"], n_estimators=40)
+
+
+@pytest.fixture(scope="session")
+def modelo_onnx(pipeline_treinado) -> bytes:
+    from triagem.onnx_export import converter_para_onnx
+
+    return converter_para_onnx(pipeline_treinado)

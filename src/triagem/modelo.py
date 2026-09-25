@@ -25,7 +25,8 @@ def construir_pipeline(n_estimators: int = 200, seed: int = 42) -> Pipeline:
                     ngram_range=(1, 2),
                     min_df=2,
                     max_features=20000,
-                    sublinear_tf=True,
+                    # sublinear_tf fica desligado: o skl2onnx não o reproduz (quebra a paridade).
+                    sublinear_tf=False,
                     token_pattern=TOKEN_PATTERN,
                 ),
             ),

@@ -98,7 +98,8 @@ versionado em `data/raw/laudos_sinteticos.csv`.
   backends, o que evita *training-serving skew* (Pipeline de Treino, Aula 1). Remover acentos antes
   também deixa a tokenização idêntica entre scikit-learn e ONNX.
 - **Pipeline scikit-learn:** `TfidfVectorizer(ngram_range=(1, 2), min_df=2, max_features=20000,
-  sublinear_tf=True)` → `RandomForestClassifier(n_estimators=200, class_weight="balanced",
+  sublinear_tf=False)` (na implementação ficou comprovado que o skl2onnx não reproduz `sublinear_tf=True`:
+  termos repetidos no laudo divergiam e a paridade quebrava) → `RandomForestClassifier(n_estimators=200, class_weight="balanced",
   random_state=42, n_jobs=1)`. O `n_jobs=1` garante uma comparação de latência justa por requisição.
 - **Split:** estratificado 80/20, `random_state=42`.
 - **Métricas registradas:** acurácia, F1-macro, recall da classe `urgente` (o erro mais caro é

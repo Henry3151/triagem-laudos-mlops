@@ -8,6 +8,11 @@ def test_pipeline_tem_tfidf_e_random_forest():
     assert pipe.named_steps["rf"].n_jobs == 1
 
 
+def test_tfidf_sem_sublinear_tf_para_paridade_onnx():
+    # O conversor skl2onnx não reproduz sublinear_tf: termos repetidos divergem no ONNX.
+    assert construir_pipeline().named_steps["tfidf"].sublinear_tf is False
+
+
 def test_modelo_treinado_atinge_limiar(pipeline_treinado, split_pequeno):
     _, teste = split_pequeno
     metricas = avaliar(pipeline_treinado, teste["texto"], teste["classe"])

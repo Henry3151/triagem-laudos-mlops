@@ -1,0 +1,167 @@
+{
+  "descricao": "Comparação a posteriori no split de produção (80/20 estratificado, seed 42)",
+  "n_treino": 2400,
+  "n_teste": 600,
+  "candidatos": [
+    {
+      "candidato": "Random Forest (produção)",
+      "acuracia": 0.955,
+      "f1_macro": 0.9479819944993766,
+      "recall_urgente": 0.8709677419354839,
+      "matriz_confusao": {
+        "rotulos": [
+          "normal",
+          "atencao",
+          "urgente"
+        ],
+        "valores": [
+          [
+            265,
+            1,
+            0
+          ],
+          [
+            6,
+            200,
+            4
+          ],
+          [
+            11,
+            5,
+            108
+          ]
+        ]
+      },
+      "n_amostras": 600,
+      "treino_s": 1.9031527999995888
+    },
+    {
+      "candidato": "Random Forest + sublinear_tf",
+      "acuracia": 0.9516666666666667,
+      "f1_macro": 0.9451374466849781,
+      "recall_urgente": 0.8709677419354839,
+      "matriz_confusao": {
+        "rotulos": [
+          "normal",
+          "atencao",
+          "urgente"
+        ],
+        "valores": [
+          [
+            265,
+            1,
+            0
+          ],
+          [
+            8,
+            198,
+            4
+          ],
+          [
+            11,
+            5,
+            108
+          ]
+        ]
+      },
+      "n_amostras": 600,
+      "treino_s": 1.6668556999993598
+    },
+    {
+      "candidato": "Regressão Logística",
+      "acuracia": 0.9716666666666667,
+      "f1_macro": 0.9664462081128748,
+      "recall_urgente": 0.9112903225806451,
+      "matriz_confusao": {
+        "rotulos": [
+          "normal",
+          "atencao",
+          "urgente"
+        ],
+        "valores": [
+          [
+            265,
+            1,
+            0
+          ],
+          [
+            2,
+            205,
+            3
+          ],
+          [
+            7,
+            4,
+            113
+          ]
+        ]
+      },
+      "n_amostras": 600,
+      "treino_s": 0.19287760000042908
+    },
+    {
+      "candidato": "LinearSVC",
+      "acuracia": 0.9716666666666667,
+      "f1_macro": 0.9664462081128748,
+      "recall_urgente": 0.9112903225806451,
+      "matriz_confusao": {
+        "rotulos": [
+          "normal",
+          "atencao",
+          "urgente"
+        ],
+        "valores": [
+          [
+            265,
+            1,
+            0
+          ],
+          [
+            2,
+            205,
+            3
+          ],
+          [
+            7,
+            4,
+            113
+          ]
+        ]
+      },
+      "n_amostras": 600,
+      "treino_s": 0.18300570000064909
+    },
+    {
+      "candidato": "Naive Bayes Multinomial",
+      "acuracia": 0.9633333333333334,
+      "f1_macro": 0.95665096482865,
+      "recall_urgente": 0.8790322580645161,
+      "matriz_confusao": {
+        "rotulos": [
+          "normal",
+          "atencao",
+          "urgente"
+        ],
+        "valores": [
+          [
+            265,
+            1,
+            0
+          ],
+          [
+            3,
+            204,
+            3
+          ],
+          [
+            11,
+            4,
+            109
+          ]
+        ]
+      },
+      "n_amostras": 600,
+      "treino_s": 0.12487420000070415
+    }
+  ]
+}

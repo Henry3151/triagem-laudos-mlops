@@ -172,7 +172,8 @@ triagem-laudos-mlops/
 ├── airflow/                  # Dockerfile do Airflow + check_dag.py (usado no CI)
 ├── monitoring/               # prometheus.yml · datasource e dashboard do Grafana
 ├── scripts/                  # smoke_test.sh · gerar_carga.py · benchmark_docker.sh
-├── reports/                  # latencia.md / latencia.json (benchmark real)
+│                             # comparar_candidatos.py · gerar_graficos.py
+├── reports/                  # latencia.{md,json} · candidatos.json (dados dos gráficos)
 ├── data/raw/                 # dataset sintético versionado
 ├── tests/                    # 74 testes (pytest)
 ├── docs/                     # arquitetura · roteiro do vídeo · prints · spec e plano
@@ -266,7 +267,7 @@ texto ─► normalizar_texto ─► TfidfVectorizer(ngram_range=(1, 2), min_df=
 ```
 
 Resultados no conjunto de teste (600 laudos, split estratificado 80/20), do `metadata.json` do
-modelo em produção:
+modelo em produção e reproduzidos em [`reports/candidatos.json`](reports/candidatos.json):
 
 | Métrica | Valor | Limiar do quality gate |
 |---|---|---|
@@ -284,8 +285,34 @@ modelo em produção:
 | **atencao** | 6 | **200** | 4 |
 | **urgente** | 11 | 5 | **108** |
 
+<p align="center">
+  <img src="docs/img/matriz_confusao.png" alt="Matriz de confusão do modelo em produção" width="560">
+</p>
+
 > O recall de urgente é a métrica que mais importa (deixar passar um urgente é o erro mais caro).
 > Parte dos erros vem dos **3% de ruído de rótulo** inserido de propósito no dataset.
+
+### Comparação de candidatos
+
+Para documentar a escolha, `scripts/comparar_candidatos.py` treina cinco candidatos **no mesmo
+split e com as mesmas seeds** do pipeline de produção, todos com o mesmo TF-IDF. O resultado fica
+em [`reports/candidatos.json`](reports/candidatos.json).
+
+![Comparação de candidatos](docs/img/candidatos.png)
+
+| Candidato | F1-macro | Recall de urgente |
+|---|---|---|
+| LinearSVC | 0,966 | 0,911 |
+| Regressão Logística | 0,966 | 0,911 |
+| Naive Bayes Multinomial | 0,957 | 0,879 |
+| **Random Forest (produção)** | **0,948** | **0,871** |
+| Random Forest + `sublinear_tf` | 0,945 | 0,871 |
+
+> **Leitura honesta:** a comparação foi feita **depois** da escolha do modelo, e os modelos lineares
+> superam o Random Forest neste dataset (+0,018 de F1-macro e +0,040 de recall de urgente). O
+> Random Forest segue em produção porque segue o exemplo do enunciado (TF-IDF + Random Forest), é
+> o caso em que a conversão para ONNX dá o maior ganho de latência e passa com folga nos gates.
+> Avaliar a troca por um modelo linear está em [limitações](#%EF%B8%8F-limitações-conhecidas-e-próximos-passos).
 
 **Duas decisões de modelagem vieram da conversão para ONNX** (ambas cobertas por testes):
 
@@ -305,6 +332,8 @@ versão não é promovida.
 Metodologia ([`reports/latencia.md`](reports/latencia.md)): 1.000 chamadas com batch 1, após 50 de
 warmup, 1 thread por backend, reportando **percentis** (não só a média). Executado **dentro de uma
 rede Docker** (Linux, 8 CPUs) com `bash scripts/benchmark_docker.sh`.
+
+![Latência sklearn vs. ONNX Runtime](docs/img/latencia.png)
 
 ### Em processo (só a predição, incluindo o pré-processamento)
 
@@ -516,6 +545,13 @@ bash scripts/benchmark_docker.sh      # gera reports/latencia.md e reports/laten
 bash scripts/smoke_test.sh triagem-api:local 8000
 ```
 
+### 7. Comparação de candidatos e gráficos do README
+
+```bash
+uv run python scripts/comparar_candidatos.py   # gera reports/candidatos.json
+uv run python scripts/gerar_graficos.py        # gera docs/img/{latencia,matriz_confusao,candidatos}.png
+```
+
 ---
 
 ## 🧾 Histórico de commits
@@ -553,6 +589,7 @@ O projeto seguiu **spec → plano → TDD**: a spec de design e o plano de imple
 | Limitação | Impacto | Próximo passo |
 |---|---|---|
 | **Dataset sintético** | laudos reais são muito mais variados; o gerador também combina modalidade e achado livremente (ex.: achado de ECG num laudo de ressonância) | trocar por laudos reais anonimizados (o contrato de dados já valida o formato) |
+| **Modelo em produção não é o melhor candidato** | Regressão Logística e LinearSVC têm F1-macro de 0,966 e recall de urgente de 0,911, contra 0,948 e 0,871 do Random Forest (comparação a posteriori) | avaliar a troca por um modelo linear, medindo paridade e latência ONNX antes |
 | **Promoção não atômica** | `promover()` apaga `models/producao` e só então renomeia a nova versão; um crash nesse instante deixa a produção sem modelo | troca atômica via symlink/ponteiro, ou um Model Registry (MLflow) |
 | Sem detecção de drift | a degradação silenciosa do modelo não é percebida | PSI / teste KS sobre as predições (Evidently) disparando o retreino por evento |
 | Sem deploy contínuo real | o CI termina na imagem validada | push para o Artifact Registry via OIDC e rollout canary no Cloud Run |
@@ -573,6 +610,7 @@ O projeto seguiu **spec → plano → TDD**: a spec de design e o plano de imple
 | Infra | Docker multi-stage (python:3.12-slim, não-root), Docker Compose |
 | CI/CD | GitHub Actions (4 jobs, cache uv + Docker) |
 | Qualidade | ruff (lint + format), pytest + pytest-cov |
+| Gráficos | matplotlib (gerados a partir de `reports/`) |
 | Ambiente | uv 0.11, `pyproject.toml`, `uv.lock`, Python 3.12 |
 
 ---

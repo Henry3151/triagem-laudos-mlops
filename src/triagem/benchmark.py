@@ -6,13 +6,17 @@ Mede percentis (P50/P95/P99), não só a média, com batch 1 e warmup.
 from __future__ import annotations
 
 import argparse
+import csv
+import http.client
 import json
 import os
 import platform
+import random
 import time
 from collections.abc import Callable, Sequence
 from itertools import cycle, islice
 from pathlib import Path
+from urllib.parse import urlsplit
 
 import numpy as np
 
@@ -74,17 +78,39 @@ def benchmark_inprocess(
 def benchmark_http(
     urls: dict[str, str], textos: Sequence[str], n: int = 1000, warmup: int = 50
 ) -> dict:
-    import httpx
+    """Latência ponta a ponta. Usa só a stdlib para rodar dentro da imagem runtime.
 
+    Rodar o cliente na mesma rede Docker evita o atraso do port-forward do Docker Desktop
+    no Windows (~40 ms em POSTs), que não existe entre serviços na nuvem.
+    """
     resultado: dict = {}
     for backend, url in urls.items():
-        with httpx.Client(base_url=url, timeout=10) as cliente:
+        conexao = http.client.HTTPConnection(urlsplit(url).netloc, timeout=10)
 
-            def chamar(texto: str, cliente: httpx.Client = cliente) -> None:
-                cliente.post("/predict", json={"texto": texto}).raise_for_status()
+        def chamar(
+            texto: str, conexao: http.client.HTTPConnection = conexao, url: str = url
+        ) -> None:
+            corpo = json.dumps({"texto": texto}).encode("utf-8")
+            conexao.request(
+                "POST", "/predict", body=corpo, headers={"Content-Type": "application/json"}
+            )
+            resposta = conexao.getresponse()
+            resposta.read()
+            if resposta.status != 200:
+                raise RuntimeError(f"{url}/predict retornou {resposta.status}")
 
+        try:
             resultado[backend] = {"latencia_ms": medir(chamar, textos, n, warmup)}
+        finally:
+            conexao.close()
     return resultado | _speedups(resultado)
+
+
+def carregar_textos(caminho: Path, amostra: int = 500, seed: int = 42) -> list[str]:
+    """Lê os textos do CSV só com a stdlib (a imagem runtime não tem pandas)."""
+    with Path(caminho).open(encoding="utf-8", newline="") as arquivo:
+        textos = [linha["texto"] for linha in csv.DictReader(arquivo)]
+    return random.Random(seed).sample(textos, min(amostra, len(textos)))
 
 
 def _linha(backend: str, dados: dict) -> str:
@@ -151,9 +177,7 @@ def main(argv: list[str] | None = None) -> int:
     parser.add_argument("--saida", type=Path, default=Path("reports"))
     args = parser.parse_args(argv)
 
-    from triagem.dados import carregar_dataset
-
-    textos = list(carregar_dataset(args.dados)["texto"].sample(n=500, random_state=42))
+    textos = carregar_textos(args.dados)
     resultado: dict = {
         "ambiente": {
             "python": platform.python_version(),

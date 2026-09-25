@@ -1,0 +1,6 @@
+# Uso: docker compose -f docker-compose.yml -f docker-compose.modelo-local.yml up -d
+# Serve o modelo promovido pela DAG do Airflow (./models/producao) em vez do embutido na imagem.
+services:
+  api:
+    volumes:
+      - ./models/producao:/app/models/producao:ro

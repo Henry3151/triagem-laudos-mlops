@@ -1,0 +1,135 @@
+{
+  "uid": "triagem-api",
+  "title": "Triagem de Laudos — API",
+  "tags": ["triagem", "mlops"],
+  "timezone": "browser",
+  "schemaVersion": 41,
+  "version": 1,
+  "refresh": "5s",
+  "time": {"from": "now-15m", "to": "now"},
+  "panels": [
+    {
+      "id": 1,
+      "type": "stat",
+      "title": "Total de requisições (/predict)",
+      "gridPos": {"x": 0, "y": 0, "w": 6, "h": 8},
+      "datasource": {"type": "prometheus", "uid": "prometheus"},
+      "targets": [
+        {"refId": "A", "expr": "sum(triagem_http_requests_total{rota=\"/predict\"})"}
+      ],
+      "options": {"reduceOptions": {"calcs": ["lastNotNull"]}, "graphMode": "area"}
+    },
+    {
+      "id": 2,
+      "type": "stat",
+      "title": "Modelo em produção",
+      "gridPos": {"x": 6, "y": 0, "w": 6, "h": 8},
+      "datasource": {"type": "prometheus", "uid": "prometheus"},
+      "targets": [
+        {
+          "refId": "A",
+          "expr": "triagem_modelo_info",
+          "legendFormat": "{{versao}} ({{backend}})",
+          "instant": true
+        }
+      ],
+      "options": {
+        "reduceOptions": {"calcs": ["lastNotNull"]},
+        "textMode": "name",
+        "colorMode": "none",
+        "graphMode": "none"
+      }
+    },
+    {
+      "id": 3,
+      "type": "timeseries",
+      "title": "Requisições por segundo, por status",
+      "gridPos": {"x": 12, "y": 0, "w": 12, "h": 8},
+      "datasource": {"type": "prometheus", "uid": "prometheus"},
+      "targets": [
+        {
+          "refId": "A",
+          "expr": "sum by (status) (rate(triagem_http_requests_total{rota=\"/predict\"}[1m]))",
+          "legendFormat": "HTTP {{status}}"
+        }
+      ],
+      "fieldConfig": {"defaults": {"unit": "reqps"}, "overrides": []}
+    },
+    {
+      "id": 4,
+      "type": "timeseries",
+      "title": "Latência HTTP de /predict (P50 / P95 / P99)",
+      "gridPos": {"x": 0, "y": 8, "w": 12, "h": 8},
+      "datasource": {"type": "prometheus", "uid": "prometheus"},
+      "targets": [
+        {
+          "refId": "A",
+          "expr": "histogram_quantile(0.50, sum by (le) (rate(triagem_http_request_duration_seconds_bucket{rota=\"/predict\"}[1m])))",
+          "legendFormat": "P50"
+        },
+        {
+          "refId": "B",
+          "expr": "histogram_quantile(0.95, sum by (le) (rate(triagem_http_request_duration_seconds_bucket{rota=\"/predict\"}[1m])))",
+          "legendFormat": "P95"
+        },
+        {
+          "refId": "C",
+          "expr": "histogram_quantile(0.99, sum by (le) (rate(triagem_http_request_duration_seconds_bucket{rota=\"/predict\"}[1m])))",
+          "legendFormat": "P99"
+        }
+      ],
+      "fieldConfig": {"defaults": {"unit": "s"}, "overrides": []}
+    },
+    {
+      "id": 5,
+      "type": "timeseries",
+      "title": "Taxa de erro (4xx + 5xx) em /predict",
+      "gridPos": {"x": 12, "y": 8, "w": 12, "h": 8},
+      "datasource": {"type": "prometheus", "uid": "prometheus"},
+      "targets": [
+        {
+          "refId": "A",
+          "expr": "100 * sum(rate(triagem_http_requests_total{rota=\"/predict\",status=~\"4..|5..\"}[1m])) / clamp_min(sum(rate(triagem_http_requests_total{rota=\"/predict\"}[1m])), 1e-9)",
+          "legendFormat": "% erros"
+        }
+      ],
+      "fieldConfig": {"defaults": {"unit": "percent", "min": 0}, "overrides": []}
+    },
+    {
+      "id": 6,
+      "type": "bargauge",
+      "title": "Predições por classe (últimos 5 min)",
+      "gridPos": {"x": 0, "y": 16, "w": 12, "h": 8},
+      "datasource": {"type": "prometheus", "uid": "prometheus"},
+      "targets": [
+        {
+          "refId": "A",
+          "expr": "sum by (classe) (increase(triagem_predicoes_total[5m]))",
+          "legendFormat": "{{classe}}",
+          "instant": true
+        }
+      ],
+      "options": {
+        "reduceOptions": {"calcs": ["lastNotNull"]},
+        "orientation": "horizontal",
+        "displayMode": "gradient"
+      },
+      "fieldConfig": {"defaults": {"unit": "short", "decimals": 0}, "overrides": []}
+    },
+    {
+      "id": 7,
+      "type": "timeseries",
+      "title": "Latência de inferência P95 por backend",
+      "gridPos": {"x": 12, "y": 16, "w": 12, "h": 8},
+      "datasource": {"type": "prometheus", "uid": "prometheus"},
+      "targets": [
+        {
+          "refId": "A",
+          "expr": "histogram_quantile(0.95, sum by (le, backend) (rate(triagem_inferencia_duration_seconds_bucket[1m])))",
+          "legendFormat": "{{backend}}"
+        }
+      ],
+      "fieldConfig": {"defaults": {"unit": "s"}, "overrides": []}
+    }
+  ]
+}

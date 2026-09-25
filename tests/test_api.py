@@ -78,6 +78,14 @@ def test_metricas_contam_requisicoes_e_predicoes(cliente):
     assert 'rota="/metrics"' not in texto
 
 
+def test_histogramas_tem_buckets_abaixo_de_1ms(cliente):
+    # A inferência ONNX leva menos de 1 ms: sem buckets finos o P95 vira interpolação.
+    cliente.post("/predict", json={"texto": URGENTE})
+    texto = cliente.get("/metrics").text
+    assert 'triagem_inferencia_duration_seconds_bucket{backend="onnx",le="0.0001"}' in texto
+    assert 'triagem_inferencia_duration_seconds_bucket{backend="onnx",le="0.0005"}' in texto
+
+
 def test_rota_inexistente_nao_explode_cardinalidade(cliente):
     cliente.get("/qualquer/coisa/123")
     texto = cliente.get("/metrics").text

@@ -28,6 +28,9 @@ def construir_pipeline(n_estimators: int = 200, seed: int = 42) -> Pipeline:
                     # sublinear_tf fica desligado: o skl2onnx não o reproduz (quebra a paridade).
                     sublinear_tf=False,
                     token_pattern=TOKEN_PATTERN,
+                    # Caixa já tratada em normalizar_texto; evita o StringNormalizer no ONNX,
+                    # que exige o locale en_US.UTF-8 (ausente em imagens slim).
+                    lowercase=False,
                 ),
             ),
             (

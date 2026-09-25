@@ -13,6 +13,15 @@ def test_paridade_com_sklearn(pipeline_treinado, modelo_onnx, split_pequeno):
     assert paridade["max_diff_prob"] <= 1e-2
 
 
+def test_grafo_sem_string_normalizer(modelo_onnx):
+    # StringNormalizer exige locale en_US.UTF-8, ausente em imagens slim; a caixa já é
+    # tratada por normalizar_texto.
+    import onnx
+
+    operadores = {n.op_type for n in onnx.load_from_string(modelo_onnx).graph.node}
+    assert "StringNormalizer" not in operadores
+
+
 def test_probabilidades_somam_um(modelo_onnx, split_pequeno):
     _, teste = split_pequeno
     sessao = criar_sessao_onnx(modelo_onnx)

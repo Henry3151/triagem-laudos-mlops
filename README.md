@@ -241,7 +241,9 @@ docker compose -f docker-compose.airflow.yml up -d --build   # UI em http://loca
 
 A UI abre **sem login**: isso é só para desenvolvimento local, via
 `AIRFLOW__CORE__SIMPLE_AUTH_MANAGER_ALL_ADMINS`. Se a porta 8080 estiver ocupada, use
-`AIRFLOW_PORT=8081`. Ative a DAG `triagem_retreino` e clique em *Trigger*, ou rode uma execução
+`AIRFLOW_PORT=8081`. **No Linux**, rode antes `echo "AIRFLOW_UID=$(id -u)" > .env` para o
+container conseguir gravar em `data/processed/` e `models/` (no Docker Desktop, Windows ou Mac,
+isso não é necessário). Ative a DAG `triagem_retreino` e clique em *Trigger*, ou rode uma execução
 completa pelo terminal:
 
 ```bash

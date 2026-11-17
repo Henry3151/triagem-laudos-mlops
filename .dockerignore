@@ -1,7 +1,6 @@
 .git
 .github
 .venv
-.claude
 .superpowers
 **/__pycache__
 .pytest_cache

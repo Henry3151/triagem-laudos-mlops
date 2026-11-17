@@ -279,8 +279,8 @@ docker-compose.airflow.yml
 pyproject.toml, uv.lock, .gitignore, .dockerignore, README.md
 ```
 
-`models/` fica fora do Git (artefatos gerados). `.claude/` e `docs/Resumo_Aulas_Tech_Challenge.md`
-também ficam no `.gitignore`: o primeiro é configuração local, o segundo é material de aula.
+`models/` fica fora do Git (artefatos gerados). `docs/Resumo_Aulas_Tech_Challenge.md`
+também fica no `.gitignore`, por ser material de aula.
 
 ## 12. Tratamento de erros
 

@@ -2218,7 +2218,6 @@ git commit -m "feat: benchmark de latência sklearn vs ONNX Runtime"
 .git
 .github
 .venv
-.claude
 **/__pycache__
 .pytest_cache
 .ruff_cache

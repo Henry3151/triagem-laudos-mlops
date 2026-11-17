@@ -20,7 +20,7 @@
 - Quality gate de promoção: F1-macro ≥ 0,80; recall de urgente ≥ 0,85; F1-macro ≥ F1 do campeão − 0,01.
 - Paridade ONNX: concordância ≥ 0,99 e diferença máxima de probabilidade ≤ 1e-2.
 - API: `texto` com 1 a 5.000 caracteres após o strip; 422 para inválido; 500 genérico para falha de inferência.
-- Commits semânticos, com o trailer `Co-Authored-By: Claude Opus 5.5 <noreply@anthropic.com>`.
+- Commits semânticos.
 - Arquivos sempre com terminação LF (`.gitattributes`).
 
 ## Review Focus
